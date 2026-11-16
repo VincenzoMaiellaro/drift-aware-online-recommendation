@@ -1,0 +1,90 @@
+experiment:
+  name: synthetic_cluster_no_force_ablation
+  seed: 42
+  output_dir: experiment-results/synthetic/cluster_no_force_ablation
+
+data:
+  n_users: 60
+  mind_path: MINDsmall_train
+  category_level: category
+  mind_item_limit: 600
+  mind_profile_events: 50000
+  mind_smoothing: 0.05
+  candidate_set_size: 20
+  n_events: 12000
+  drift_fraction: 0.5
+  drift_mode: sudden
+  drift_strength: 0.75
+  noise: 0.08
+  gradual_width: 1500
+  user_drift_jitter: 450
+
+recommendation:
+  k: 10
+  embedding_dim: 16
+  learning_rate: 0.035
+  regularization: 0.01
+  negative_samples: 4
+  init_std: 0.08
+  category_weight: 0.18
+  candidate_pool_size: 180
+  popularity_window: 600
+
+time_decay:
+  decay_rate: 0.015
+  decay_rates: [0.005, 0.015, 0.03, 0.06]
+  drift_boost: 1.0
+  max_elapsed: 200
+  user_factor_decay_floor: 0.985
+  user_bias_decay_floor: 0.995
+
+drift_detection:
+  kl:
+    reference_window: 45
+    current_window: 25
+    threshold: 0.20
+    min_events: 70
+    cooldown: 12
+    smoothing: 0.01
+  jsd:
+    reference_window: 45
+    current_window: 25
+    threshold: 0.05
+    min_events: 70
+    cooldown: 12
+    smoothing: 0.01
+
+adaptation:
+  active_window: 1500
+  history_length: 45
+  min_support: 2
+  min_confidence: 0.12
+  rerank_alpha: 0.85
+  preference_weight: 0.9
+  transition_weight: 0.1
+
+clustering:
+  enabled: true
+  ablation_no_force_activation: true
+  n_clusters: 8
+  min_interactions: 6
+  centroid_learning_rate: 0.04
+  new_cluster_similarity: 0.9
+  rule_learning_rate: 0.5
+  rule_ttl: 1000
+  shared_rule_weight: 0.25
+  min_similarity: 0.35
+  rule_merge_similarity: 0.92
+  max_rules_per_cluster: 2
+  preference_weight: 0.85
+  transition_weight: 0.15
+
+evaluation:
+  moving_window: 250
+  recovery_window: 300
+  recovery_threshold_ratio: 0.9
+  max_events_after_drift: 1500
+  recovery_bin_size: 50
+  recovery_min_bin_events: 10
+  recovery_sustain_bins: 2
+  absolute_recovery_threshold: 0.15

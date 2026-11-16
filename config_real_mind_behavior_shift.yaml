@@ -1,0 +1,94 @@
+experiment:
+  name: mindsmall_history_divergence
+  seed: 42
+  output_dir: experiment-results/mind/latest
+
+
+# MINDsmall_train is a real news recommendation log. It does not contain
+# labelled drift points, so KL/JSD detections are behavior-shift signals.
+# Set n_events to 0 to use all clicked impressions.
+data:
+  source: mind
+  path: MINDsmall_train
+  # Use the 17 main MIND category labels.
+  category_level: category
+  smoothing: 0.05
+  n_events: 0
+
+
+recommendation:
+  k: 10
+  embedding_dim: 16
+  learning_rate: 0.03
+  regularization: 0.02
+  negative_samples: 3
+  init_std: 0.06
+  category_weight: 0.12
+  candidate_pool_size: 120
+  popularity_window: 10000
+
+
+time_decay:
+  decay_rate: 0.003
+  decay_rates: [0.001, 0.003, 0.006]
+  drift_boost: 0.5
+  max_elapsed: 1000
+  user_factor_decay_floor: 0.995
+
+
+# On MIND, KL and JSD compare:
+#   distribution of categories in the MIND history column
+#   vs.
+#   distribution of recent clicked categories observed online.
+drift_detection:
+  kl:
+    reference_window: 0
+    current_window: 5
+    threshold: 0.45
+    min_events: 5
+    cooldown: 15
+    smoothing: 0.05
+  jsd:
+    reference_window: 0
+    current_window: 5
+    threshold: 0.08
+    min_events: 5
+    cooldown: 15
+    smoothing: 0.05
+
+
+adaptation:
+  active_window: 30000
+  history_length: 20
+  min_support: 1
+  min_confidence: 0.1
+  rerank_alpha: 0.35
+  preference_weight: 0.85
+  transition_weight: 0.15
+
+
+clustering:
+  enabled: true
+  n_clusters: 24
+  min_interactions: 4
+  centroid_learning_rate: 0.03
+  new_cluster_similarity: 0.92
+  rule_learning_rate: 0.4
+  rule_ttl: 20000
+  shared_rule_weight: 0.15
+  min_similarity: 0.25
+  rule_merge_similarity: 0.90
+  max_rules_per_cluster: 2
+  preference_weight: 0.9
+  transition_weight: 0.1
+
+
+evaluation:
+  moving_window: 1000
+  recovery_window: 300
+  recovery_threshold_ratio: 0.9
+  max_events_after_drift: 1500
+  recovery_bin_size: 50
+  recovery_min_bin_events: 10
+  recovery_sustain_bins: 2
+  absolute_recovery_threshold: 0.15
